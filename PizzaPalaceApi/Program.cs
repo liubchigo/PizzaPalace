@@ -1,7 +1,6 @@
 
 
 using Microsoft.Extensions.Diagnostics.HealthChecks;
-using PizzaPalaceApi.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -47,8 +46,6 @@ builder.Services.AddHealthChecks()
             return randomNumber > 50;
         }
     });
-builder.Services.AddScoped<IOrderService, OrderService>();
-builder.Services.AddScoped<IDeliveryService, DeliveryService>();
 builder.Services.AddControllers();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
