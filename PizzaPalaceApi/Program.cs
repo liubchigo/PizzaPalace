@@ -1,7 +1,6 @@
 
 
 using Microsoft.Extensions.Diagnostics.HealthChecks;
-using PizzaPalaceApi.Repositories;
 using PizzaPalaceApi.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -48,9 +47,6 @@ builder.Services.AddHealthChecks()
             return randomNumber > 50;
         }
     });
-
-builder.Services.AddScoped<IOrderRepository, OrderRepository>();
-builder.Services.AddScoped<IDeliveryRepository, DeliveryRepository>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IDeliveryService, DeliveryService>();
 builder.Services.AddControllers();

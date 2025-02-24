@@ -1,31 +1,26 @@
 using Microsoft.AspNetCore.Mvc;
 using PizzaPalaceApi.Models;
-using PizzaPalaceApi.Services;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace PizzaPalaceApi.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("api/[controller]")]
     public class DeliveriesController : ControllerBase
     {
-        private readonly IDeliveryService _deliveryService;
+        private static List<Delivery> deliveries = new List<Delivery>();
 
-        public DeliveriesController(IDeliveryService deliveryService)
+        [HttpGet]
+        public ActionResult<IEnumerable<Delivery>> GetDeliveries()
         {
-            _deliveryService = deliveryService;
-        }
-
-        [HttpPost]
-        public ActionResult<Delivery> CreateDelivery([FromBody] Delivery delivery)
-        {
-            var createdDelivery = _deliveryService.ScheduleDelivery(delivery.OrderId, delivery.DeliveryAddress);
-            return CreatedAtAction(nameof(GetDelivery), new { id = createdDelivery.DeliveryId }, createdDelivery);
+            return Ok(deliveries);
         }
 
         [HttpGet("{id}")]
         public ActionResult<Delivery> GetDelivery(int id)
         {
-            var delivery = _deliveryService.GetDeliveryStatus(id);
+            var delivery = deliveries.FirstOrDefault(d => d.DeliveryId == id);
             if (delivery == null)
             {
                 return NotFound();
@@ -33,11 +28,37 @@ namespace PizzaPalaceApi.Controllers
             return Ok(delivery);
         }
 
-        [HttpGet]
-        public ActionResult<IEnumerable<Delivery>> GetAllDeliveries()
+        [HttpPost]
+        public ActionResult<Delivery> CreateDelivery(Delivery delivery)
         {
-            var deliveries = _deliveryService.GetAllDeliveries();
-            return Ok(deliveries);
+            delivery.DeliveryId = deliveries.Count > 0 ? deliveries.Max(d => d.DeliveryId) + 1 : 1;
+            deliveries.Add(delivery);
+            return CreatedAtAction(nameof(GetDelivery), new { id = delivery.DeliveryId }, delivery);
+        }
+
+        [HttpPut("{id}")]
+        public IActionResult UpdateDelivery(int id, Delivery updatedDelivery)
+        {
+            var delivery = deliveries.FirstOrDefault(d => d.DeliveryId == id);
+            if (delivery == null)
+            {
+                return NotFound();
+            }
+            delivery.DeliveryAddress = updatedDelivery.DeliveryAddress;
+            delivery.DeliveryStatus = updatedDelivery.DeliveryStatus;
+            return NoContent();
+        }
+
+        [HttpDelete("{id}")]
+        public IActionResult DeleteDelivery(int id)
+        {
+            var delivery = deliveries.FirstOrDefault(d => d.DeliveryId == id);
+            if (delivery == null)
+            {
+                return NotFound();
+            }
+            deliveries.Remove(delivery);
+            return NoContent();
         }
     }
 }

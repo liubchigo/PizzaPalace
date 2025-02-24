@@ -1,16 +1,13 @@
 using PizzaPalaceApi.Models;
-using PizzaPalaceApi.Repositories;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace PizzaPalaceApi.Services
 {
     public class OrderService : IOrderService
     {
-        private readonly IOrderRepository _orderRepository;
-
-        public OrderService(IOrderRepository orderRepository)
-        {
-            _orderRepository = orderRepository;
-        }
+        private static List<Order> orders = new List<Order>();
 
         public Order PlaceOrder(Order order)
         {
@@ -20,15 +17,16 @@ namespace PizzaPalaceApi.Services
                 throw new ArgumentException("Invalid order details.");
             }
 
-            // Add the order to the repository
-            _orderRepository.AddOrder(order);
+            // Add the order to the list
+            order.OrderId = orders.Count > 0 ? orders.Max(o => o.OrderId) + 1 : 1;
+            orders.Add(order);
             return order;
         }
 
-        public Order GetOrderDetails(Guid orderId)
+        public Order GetOrderDetails(int orderId)
         {
-            // Retrieve the order from the repository
-            var order = _orderRepository.GetOrderById(orderId);
+            // Retrieve the order from the list
+            var order = orders.FirstOrDefault(o => o.OrderId == orderId);
             if (order == null)
             {
                 throw new KeyNotFoundException("Order not found.");
@@ -39,8 +37,8 @@ namespace PizzaPalaceApi.Services
 
         public IEnumerable<Order> GetAllOrders()
         {
-            // Retrieve all orders from the repository
-            return _orderRepository.GetAllOrders();
+            // Retrieve all orders from the list
+            return orders;
         }
     }
 }

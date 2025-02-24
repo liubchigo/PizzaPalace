@@ -1,38 +1,36 @@
 using PizzaPalaceApi.Models;
 using PizzaPalaceApi.Repositories;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace PizzaPalaceApi.Services
 {
     public class DeliveryService : IDeliveryService
     {
-        private readonly IDeliveryRepository _deliveryRepository;
-
-        public DeliveryService(IDeliveryRepository deliveryRepository)
-        {
-            _deliveryRepository = deliveryRepository;
-        }
+        private static List<Delivery> deliveries = new List<Delivery>();
 
         public Delivery ScheduleDelivery(int orderId, string deliveryAddress)
         {
             var delivery = new Delivery
             {
+                DeliveryId = deliveries.Count > 0 ? deliveries.Max(d => d.Id) + 1 : 1,
                 OrderId = orderId,
                 DeliveryAddress = deliveryAddress,
                 DeliveryStatus = "Scheduled"
             };
 
-            _deliveryRepository.AddDelivery(delivery);
+            deliveries.Add(delivery);
             return delivery;
         }
 
         public Delivery GetDeliveryStatus(int deliveryId)
         {
-            return _deliveryRepository.GetDeliveryById(deliveryId);
+            return deliveries.FirstOrDefault(d => d.DeliveryId == deliveryId);
         }
 
         public IEnumerable<Delivery> GetAllDeliveries()
         {
-            return _deliveryRepository.GetAllDeliveries();
+            return deliveries;
         }
     }
 }

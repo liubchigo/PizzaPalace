@@ -5,7 +5,7 @@ namespace PizzaPalaceApi.Services
     public interface IOrderService
     {
         Order PlaceOrder(Order order);
-        Order GetOrderDetails(Guid orderId);
+        Order GetOrderDetails(int orderId);
         IEnumerable<Order> GetAllOrders();
     }
 }

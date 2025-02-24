@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using PizzaPalaceApi.Models;
-using PizzaPalaceApi.Repositories;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace PizzaPalaceApi.Controllers
 {
@@ -8,36 +9,57 @@ namespace PizzaPalaceApi.Controllers
     [Route("api/[controller]")]
     public class OrdersController : ControllerBase
     {
-        private readonly IOrderRepository _orderRepository;
+        private static List<Order> orders = new List<Order>();
 
-        public OrdersController(IOrderRepository orderRepository)
+        [HttpGet]
+        public ActionResult<IEnumerable<Order>> GetOrders()
         {
-            _orderRepository = orderRepository;
+            return Ok(orders);
+        }
+
+        [HttpGet("{id}")]
+        public ActionResult<Order> GetOrder(int id)
+        {
+            var order = orders.FirstOrDefault(o => o.OrderId == id);
+            if (order == null)
+            {
+                return NotFound();
+            }
+            return Ok(order);
         }
 
         [HttpPost]
         public ActionResult<Order> CreateOrder(Order order)
         {
-            _orderRepository.AddOrder(order);
+            order.OrderId = orders.Count > 0 ? orders.Max(o => o.OrderId) + 1 : 1;
+            orders.Add(order);
             return CreatedAtAction(nameof(GetOrder), new { id = order.OrderId }, order);
         }
 
-        [HttpGet("{id}")]
-        public ActionResult<Order> GetOrder(Guid id)
+        [HttpPut("{id}")]
+        public IActionResult UpdateOrder(int id, Order updatedOrder)
         {
-            var order = _orderRepository.GetOrderById(id);
+            var order = orders.FirstOrDefault(o => o.OrderId == id);
             if (order == null)
             {
                 return NotFound();
             }
-            return order;
+            order.CustomerName = updatedOrder.CustomerName;
+            order.PizzaType = updatedOrder.PizzaType;
+            order.Quantity = updatedOrder.Quantity;
+            return NoContent();
         }
 
-        [HttpGet]
-        public ActionResult<IEnumerable<Order>> GetAllOrders()
+        [HttpDelete("{id}")]
+        public IActionResult DeleteOrder(int id)
         {
-            var orders = _orderRepository.GetAllOrders();
-            return Ok(orders);
+            var order = orders.FirstOrDefault(o => o.OrderId == id);
+            if (order == null)
+            {
+                return NotFound();
+            }
+            orders.Remove(order);
+            return NoContent();
         }
     }
 }
