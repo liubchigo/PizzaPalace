@@ -9,8 +9,13 @@ namespace PizzaPalaceApi.Controllers
     [Route("api/[controller]")]
     public class DeliveriesController : ControllerBase
     {
-        private static List<Delivery> deliveries = new List<Delivery>();
-
+        private static List<Delivery> deliveries = new List<Delivery>
+        {
+            new Delivery { DeliveryId = 1, DeliveryAddress = "123 Main St", DeliveryStatus = "Pending" },
+            new Delivery { DeliveryId = 2, DeliveryAddress = "456 Elm St", DeliveryStatus = "Delivered" },
+            new Delivery { DeliveryId = 3, DeliveryAddress = "789 Oak St", DeliveryStatus = "In Progress" }
+        };
+        
         [HttpGet]
         public ActionResult<IEnumerable<Delivery>> GetDeliveries()
         {
